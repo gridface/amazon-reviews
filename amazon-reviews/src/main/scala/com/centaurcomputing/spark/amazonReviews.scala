@@ -16,6 +16,8 @@ object amazonReviews {
     // 1. (Simple) Rate the sentiment of the review by the star rating
     // 2. (Complex) Rate the sentiment of the reviews by NLP
 
+    //Purpose of this Spark Program: Parse through the json and create a smaller dataset for notebook testing
+
     val spark = SparkSession
       .builder
       .appName("AmazonReviews")
@@ -39,9 +41,11 @@ object amazonReviews {
 //    |-- summary: string (nullable = true)
 //    |-- unixReviewTime: long (nullable = true)
 
-    //a couple of queries to test shape and contents of the data
+    //create a temp table from the json file
     spark.sqlContext.sql("CREATE TEMPORARY VIEW musicReviews USING json OPTIONS" +
       " (path 'data/reviews_CDs_and_Vinyl_5.json')")
+
+    //a couple of queries to check the data
 //      val distinctReviewers = spark.sql("SELECT reviewerID,reviewCount" +
 //        " FROM (SELECT reviewerID, COUNT(reviewText) reviewCount from musicReviews GROUP BY reviewerID) WHERE reviewCount > 100 ")
 //          distinctReviewers.show()
@@ -56,34 +60,6 @@ object amazonReviews {
       .write
       .options(Map("header"->"true", "delimiter"->","))
       .csv("data/reviewSample.csv")
-  //data cleaning
-
-    //text preprocessing pipeline
-    // 1. remove html tags
-    // 2. remove accented characters
-    // 3. expand contractions
-    // 4. remove punctuation
-    // 5. lemmatization
-
-
-    def upper(x: String) : String = {
-      x.toUpperCase()
-    }
-    //.toUpperCase lambda function
-    def lower(x: String) : String = {
-      x.toLowerCase()
-    }
-    def removePunctuation(x: String) : String = {
-      x.replaceAll("""[\p{Punct}]""", "")
-    }
-
-    //executing a function on list items
-//    val myList = List("Here is an Unformatted Sentence@!", "Here is AnOThEr UnFoRmAtTeD String.", "?Que, one More?")
-//    println(myList.)
-//
-//    val cleanedList = myList.map( (sentence: String) => (removePunctuation(sentence).toLowerCase()) )
-
-
 
 
     spark.stop()
